@@ -1,26 +1,30 @@
-import type { FC, PropsWithChildren, ReactElement, ReactNode } from "react";
-import type { Block, Button, Paragraph, Image, Division, BlockWithChildren } from "../schema";
+"use client";
 
-interface BlockProps<T extends Block> {
-  block: T;
-}
-
-const ButtonBlock: FC<BlockProps<Button>> = ({ block }) => (
-  <button type="button" className="px-4 py-2 bg-blue-500 text-white rounded">
-    {block.text}
-  </button>
-);
+import type { FC, PropsWithChildren } from "react";
+import type { Paragraph, Image, Division, BlockWithChildren } from "../schema";
+import { ButtonBlock } from "./blocks/ButtonBlock";
+import { BlockProps } from "./blocks/type";
 
 const ParagraphBlock: FC<BlockProps<Paragraph>> = ({ block }) => (
-  <p className="my-2">{block.text}</p>
+  <p style={block.styles}>{block.text}</p>
 );
 
 const ImageBlock: FC<BlockProps<Image>> = ({ block }) => (
-  <img src={block.src} alt={block.alt || ""} className="max-w-full h-auto" />
+  <img
+    src={block.src}
+    alt={block.alt || ""}
+    className="max-w-full h-auto"
+    style={block.styles}
+  />
 );
 
-const DivisionBlock: FC<BlockProps<Division> & PropsWithChildren> = ({ children }) => (
-  <div className="p-2 border">{children}</div>
+const DivisionBlock: FC<BlockProps<Division> & PropsWithChildren> = ({
+  block,
+  children,
+}) => (
+  <div className="p-2 border" style={block.styles}>
+    {children}
+  </div>
 );
 
 interface Props {

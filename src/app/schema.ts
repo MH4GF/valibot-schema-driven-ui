@@ -1,9 +1,16 @@
 import { type InferOutput, object, string, optional, literal, union, intersect, record } from 'valibot';
 
+const stylesSchema = object({
+  color: optional(string()),
+  backgroundColor: optional(string()),
+  fontSize: optional(string()),
+});
+
 // ブロックの共通情報を持つスキーマ
 const baseBlockSchema = object({
   id: string(),
   parentId: optional(string()),
+  styles: stylesSchema,
 });
 
 const buttonBlockSchema = intersect([
@@ -11,6 +18,7 @@ const buttonBlockSchema = intersect([
   object({
     type: literal('button'),
     text: string(),
+    onClick: optional(string()),
   }),
 ]);
 
@@ -61,6 +69,7 @@ const newButton = (id: string, parentId?: string): Button => ({
   parentId,
   type: 'button',
   text: 'Click me',
+  styles: {},
 })
 
 const newParagraph = (id: string, parentId?: string): Paragraph => ({
@@ -68,6 +77,7 @@ const newParagraph = (id: string, parentId?: string): Paragraph => ({
   parentId,
   type: 'paragraph',
   text: 'Paragraph text',
+  styles: {},
 })
 
 const newImage = (id: string, parentId?: string): Image => ({
@@ -76,12 +86,14 @@ const newImage = (id: string, parentId?: string): Image => ({
   type: 'image',
   src: 'https://via.placeholder.com/150',
   alt: '',
+  styles: {},
 })
 
 const newDivision = (id: string, parentId?: string): Division => ({
   id,
   parentId,
   type: 'division',
+  styles: {},
 })
 
 export const newBlock = (type: BlockType, id: string, parentId?: string): Block => {

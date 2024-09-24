@@ -20,8 +20,14 @@ import Link from "next/link";
 
 type BlockTreeItem = Block & { children?: BlockTreeItem[] };
 
-export default function Editor({ searchParams }: { searchParams: Record<string, string> }) {
-  const [selectedBlockId, setSelectedBlockId] = useState<string | undefined>(undefined);
+export default function Editor({
+  searchParams,
+}: {
+  searchParams: Record<string, string>;
+}) {
+  const [selectedBlockId, setSelectedBlockId] = useState<string | undefined>(
+    undefined
+  );
   const [page, setPage] = useState<Page>(() => {
     const savedData = searchParams.data;
     if (savedData) {
@@ -29,8 +35,14 @@ export default function Editor({ searchParams }: { searchParams: Record<string, 
     }
     return { name: "New Page", blocks: {} };
   });
-  const queryData = useMemo(() => encodeURIComponent(JSON.stringify(page)), [page]);
-  const blockTree = useMemo(() => buildHierarchy(Object.values(page.blocks)), [page.blocks]);
+  const queryData = useMemo(
+    () => encodeURIComponent(JSON.stringify(page)),
+    [page]
+  );
+  const blockTree = useMemo(
+    () => buildHierarchy(Object.values(page.blocks)),
+    [page.blocks]
+  );
 
   useEffect(() => {
     window.history.replaceState({}, "", `?data=${queryData}`);
@@ -40,7 +52,10 @@ export default function Editor({ searchParams }: { searchParams: Record<string, 
     let validParentId = undefined;
     if (parentId) {
       const parentBlock = page.blocks[parentId];
-      const isParentable = safeParse(parentableBlockSchema, parentBlock).success;
+      const isParentable = safeParse(
+        parentableBlockSchema,
+        parentBlock
+      ).success;
       if (isParentable) {
         validParentId = parentId;
       }
@@ -84,7 +99,9 @@ export default function Editor({ searchParams }: { searchParams: Record<string, 
               type="button"
               onClick={() => setSelectedBlockId(block.id)}
               className={`w-full text-left px-2 py-1 rounded ${
-                selectedBlockId === block.id ? "bg-gray-600 text-white" : "hover:bg-gray-700"
+                selectedBlockId === block.id
+                  ? "bg-gray-600 text-white"
+                  : "hover:bg-gray-700"
               }`}
             >
               {block.type} - {block.id.slice(0, 6)}
@@ -139,9 +156,11 @@ export default function Editor({ searchParams }: { searchParams: Record<string, 
         </aside>
 
         <main className="p-4 overflow-y-auto">
-          <article className="bg-white p-4 min-h-full text-black">
+          <article className="bg-white p-4 min-h-full text-black flex flex-col gap-2">
             {blockTree.map((block) => (
-              <BlockRenderer key={block.id} block={block} />
+              <div key={block.id} className="w-full">
+                <BlockRenderer block={block} />
+              </div>
             ))}
           </article>
         </main>
