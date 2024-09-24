@@ -12,9 +12,9 @@ import {
   newBlock,
   buildHierarchy,
   parentableBlockSchema,
-} from "../schema";
-import { BlockForm } from "../_components/BlockForm";
-import { BlockRenderer } from "../_components/BlockRenderer";
+} from "./schema";
+import { BlockForm } from "./_components/BlockForm";
+import { BlockRenderer } from "./_components/BlockRenderer";
 import { BoxSelect, Eye, Image, Plus, Type } from "lucide-react";
 import Link from "next/link";
 
