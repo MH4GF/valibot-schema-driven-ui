@@ -3,6 +3,7 @@ import { type InferOutput, object, string, optional, literal, union, intersect, 
 // ブロックの共通情報を持つスキーマ
 const baseBlockSchema = object({
   id: string(),
+  parentId: optional(string()),
 });
 
 const buttonBlockSchema = intersect([
@@ -30,8 +31,15 @@ const imageBlockSchema = intersect([
   }),
 ]);
 
+const divisionBlockSchema = intersect([
+  baseBlockSchema,
+  object({
+    type: literal('division'),
+  }),
+]);
+
 // 全ブロックタイプのユニオン
-export const blockSchema = union([buttonBlockSchema, paragraphBlockSchema, imageBlockSchema]);
+export const blockSchema = union([buttonBlockSchema, paragraphBlockSchema, imageBlockSchema, divisionBlockSchema]);
 
 // ページレイアウトのスキーマ
 export const pageSchema = object({
@@ -46,33 +54,77 @@ export type BlockType = Block['type'];
 export type Button = InferOutput<typeof buttonBlockSchema>;
 export type Paragraph = InferOutput<typeof paragraphBlockSchema>;
 export type Image = InferOutput<typeof imageBlockSchema>;
+export type Division = InferOutput<typeof divisionBlockSchema>;
 
-const newButton = (id: string): Button => ({
+const newButton = (id: string, parentId?: string): Button => ({
   id,
+  parentId,
   type: 'button',
   text: 'Click me',
 })
 
-const newParagraph = (id: string): Paragraph => ({
+const newParagraph = (id: string, parentId?: string): Paragraph => ({
   id,
+  parentId,
   type: 'paragraph',
   text: 'Paragraph text',
 })
 
-const newImage = (id: string): Image => ({
+const newImage = (id: string, parentId?: string): Image => ({
   id,
+  parentId,
   type: 'image',
   src: 'https://via.placeholder.com/150',
   alt: '',
 })
 
-export const newBlock = (type: BlockType, id: string): Block => {
+const newDivision = (id: string, parentId?: string): Division => ({
+  id,
+  parentId,
+  type: 'division',
+})
+
+export const newBlock = (type: BlockType, id: string, parentId?: string): Block => {
   switch (type) {
     case 'button':
-      return newButton(id);
+      return newButton(id, parentId);
     case 'paragraph':
-      return newParagraph(id);
+      return newParagraph(id, parentId);
     case 'image':
-      return newImage(id);
+      return newImage(id, parentId);
+    case 'division':
+      return newDivision(id, parentId);
   }
+}
+
+// 親になれるブロックは DivisionBlock のみ
+export const parentableBlockSchema = union([divisionBlockSchema]);
+
+export type BlockWithChildren = Block & {
+  children: BlockWithChildren[];
+};
+
+export const buildHierarchy = (blocks: Block[]): BlockWithChildren[] => {
+  const map = new Map<string, BlockWithChildren>();
+
+  // 各ブロックをchildrenプロパティ付きで初期化
+  for (const block of blocks) {
+    map.set(block.id, { ...block, children: [] });
+  }
+
+  const result: BlockWithChildren[] = [];
+
+  // 親子構造を構築
+  for (const block of blocks) {
+    const parentBlock = map.get(block.parentId ?? '');
+    const childBlock = map.get(block.id);
+
+    if (parentBlock && childBlock) {
+      parentBlock.children.push(childBlock);
+    } else if (childBlock) {
+      result.push(childBlock);
+    }
+  }
+
+  return result;
 }

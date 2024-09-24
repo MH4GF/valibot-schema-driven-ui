@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, type FC } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { nanoid } from "nanoid";
-import { parse } from "valibot";
+import { parse, safeParse } from "valibot";
 import {
   type Page,
   type Block,
@@ -10,14 +10,18 @@ import {
   pageSchema,
   blockSchema,
   newBlock,
+  buildHierarchy,
+  parentableBlockSchema,
 } from "../schema";
 import { BlockForm } from "../_components/BlockForm";
 import { BlockRenderer } from "../_components/BlockRenderer";
-import { Eye, Image, Plus, Type } from "lucide-react";
+import { BoxSelect, Eye, Image, Plus, Type } from "lucide-react";
 import Link from "next/link";
 
+type BlockTreeItem = Block & { children?: BlockTreeItem[] };
+
 export default function Editor({ searchParams }: { searchParams: Record<string, string> }) {
-  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | undefined>(undefined);
   const [page, setPage] = useState<Page>(() => {
     const savedData = searchParams.data;
     if (savedData) {
@@ -26,18 +30,28 @@ export default function Editor({ searchParams }: { searchParams: Record<string, 
     return { name: "New Page", blocks: {} };
   });
   const queryData = useMemo(() => encodeURIComponent(JSON.stringify(page)), [page]);
+  const blockTree = useMemo(() => buildHierarchy(Object.values(page.blocks)), [page.blocks]);
 
   useEffect(() => {
     window.history.replaceState({}, "", `?data=${queryData}`);
   }, [queryData]);
 
-  const addBlock = (type: BlockType) => {
+  const addBlock = (type: BlockType, parentId?: string) => {
+    let validParentId = undefined;
+    if (parentId) {
+      const parentBlock = page.blocks[parentId];
+      const isParentable = safeParse(parentableBlockSchema, parentBlock).success;
+      if (isParentable) {
+        validParentId = parentId;
+      }
+    }
+
     const id = nanoid();
     setPage((prevPage) => ({
       ...prevPage,
       blocks: {
         ...prevPage.blocks,
-        [id]: newBlock(type, id),
+        [id]: newBlock(type, id, validParentId),
       },
     }));
     setSelectedBlockId(id);
@@ -58,12 +72,33 @@ export default function Editor({ searchParams }: { searchParams: Record<string, 
       const { [id]: _, ...remainingBlocks } = prevPage.blocks;
       return { ...prevPage, blocks: remainingBlocks };
     });
-    setSelectedBlockId(null);
+    setSelectedBlockId(undefined);
+  };
+
+  const renderBlockTree = (blocks: BlockTreeItem[], depth = 0) => {
+    return (
+      <ul className={depth > 0 ? "ml-4" : ""}>
+        {blocks.map((block) => (
+          <li key={block.id} className="my-1">
+            <button
+              type="button"
+              onClick={() => setSelectedBlockId(block.id)}
+              className={`w-full text-left px-2 py-1 rounded ${
+                selectedBlockId === block.id ? "bg-gray-600 text-white" : "hover:bg-gray-700"
+              }`}
+            >
+              {block.type} - {block.id.slice(0, 6)}
+            </button>
+            {block.children && renderBlockTree(block.children, depth + 1)}
+          </li>
+        ))}
+      </ul>
+    );
   };
 
   return (
-    <>
-      <header className="flex justify-between items-center px-4 border-b border-gray-700 sticky top-0 bg-gray-800 h-16">
+    <div className="grid grid-rows-[auto,1fr] h-screen text-sm">
+      <header className="grid grid-cols-[1fr,auto] items-center px-4 border-b border-gray-700 bg-gray-800 h-16">
         <h1 className="text-2xl font-bold">No-Code UI Builder</h1>
         <Link
           href={`/preview?data=${queryData}`}
@@ -73,47 +108,54 @@ export default function Editor({ searchParams }: { searchParams: Record<string, 
           Preview
         </Link>
       </header>
-      <main className="flex overflow-hidden">
-        <div className="w-1/4 border-r border-gray-700">
-          <div className="space-y-2 p-4 border-b border-gray-700">
-            {(
-              [
-                ["button", Plus],
-                ["paragraph", Type],
-                ["image", Image],
-              ] as const
-            ).map(([type, Icon]) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => addBlock(type)}
-                className="w-full px-4 py-2 text-white rounded bg-gray-700 hover:bg-gray-600 flex items-center"
-              >
-                <Icon className="mr-2 h-4 w-4" />
-                Add {type}
-              </button>
+      <div className="grid grid-cols-[1fr,4fr,1fr] overflow-hidden">
+        <aside className="border-r border-gray-700 p-4 overflow-y-auto">
+          <nav>
+            <h2 className="text-lg font-semibold mb-2">Add Blocks</h2>
+            <ul className="space-y-2 mb-6">
+              {(
+                [
+                  ["button", Plus],
+                  ["paragraph", Type],
+                  ["image", Image],
+                  ["division", BoxSelect],
+                ] as const
+              ).map(([type, Icon]) => (
+                <li key={type}>
+                  <button
+                    type="button"
+                    onClick={() => addBlock(type, selectedBlockId)}
+                    className="w-full px-4 py-2 text-white rounded bg-gray-700 hover:bg-gray-600 flex items-center"
+                  >
+                    <Icon className="mr-2 h-4 w-4" />
+                    Add {type}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <h2 className="text-lg font-semibold mb-2">Block Tree</h2>
+            {renderBlockTree(blockTree)}
+          </nav>
+        </aside>
+
+        <main className="p-4 overflow-y-auto">
+          <article className="bg-white p-4 min-h-full text-black">
+            {blockTree.map((block) => (
+              <BlockRenderer key={block.id} block={block} />
             ))}
-          </div>
+          </article>
+        </main>
+
+        <aside className="border-l border-gray-700 p-4 overflow-y-auto">
           {selectedBlockId && (
-            <div className="p-4">
-              <BlockForm
-                block={page.blocks[selectedBlockId]}
-                onUpdate={(updates) => updateBlock(selectedBlockId, updates)}
-                onDelete={() => deleteBlock(selectedBlockId)}
-              />
-            </div>
+            <BlockForm
+              block={page.blocks[selectedBlockId]}
+              onUpdate={(updates) => updateBlock(selectedBlockId, updates)}
+              onDelete={() => deleteBlock(selectedBlockId)}
+            />
           )}
-        </div>
-        <div className="w-3/4 h-[calc(100vh-64px)] p-4">
-          <div className="bg-white p-4 h-full text-black overflow-y-scroll">
-            {Object.values(page.blocks).map((block) => (
-              <div onClick={() => onSelectBlock?.(block.id)} key={block.id}>
-                <BlockRenderer block={block} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-    </>
+        </aside>
+      </div>
+    </div>
   );
 }

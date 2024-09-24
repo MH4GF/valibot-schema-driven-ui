@@ -1,5 +1,5 @@
 import { parse } from "valibot";
-import { pageSchema } from "../schema";
+import { buildHierarchy, pageSchema } from "../schema";
 import { BlockRenderer } from "../_components/BlockRenderer";
 import { notFound } from "next/navigation";
 
@@ -13,7 +13,7 @@ export default function Preview({ searchParams }: { searchParams: Record<string,
   const page = parse(pageSchema, JSON.parse(decodeURIComponent(data)));
   return (
     <main className="p-4 min-h-screen bg-white text-black">
-      {Object.values(page.blocks).map((block) => (
+      {buildHierarchy(Object.values(page.blocks)).map((block) => (
         <BlockRenderer key={block.id} block={block} />
       ))}
     </main>

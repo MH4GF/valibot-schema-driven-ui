@@ -1,5 +1,5 @@
-import type { FC } from "react";
-import type { Block, Button, Paragraph, Image } from "../schema";
+import type { FC, PropsWithChildren, ReactElement, ReactNode } from "react";
+import type { Block, Button, Paragraph, Image, Division, BlockWithChildren } from "../schema";
 
 interface BlockProps<T extends Block> {
   block: T;
@@ -19,8 +19,12 @@ const ImageBlock: FC<BlockProps<Image>> = ({ block }) => (
   <img src={block.src} alt={block.alt || ""} className="max-w-full h-auto" />
 );
 
+const DivisionBlock: FC<BlockProps<Division> & PropsWithChildren> = ({ children }) => (
+  <div className="p-2 border">{children}</div>
+);
+
 interface Props {
-  block: Block;
+  block: BlockWithChildren;
 }
 
 export const BlockRenderer: FC<Props> = ({ block }) => {
@@ -31,6 +35,14 @@ export const BlockRenderer: FC<Props> = ({ block }) => {
       return <ParagraphBlock key={block.id} block={block} />;
     case "image":
       return <ImageBlock key={block.id} block={block} />;
+    case "division":
+      return (
+        <DivisionBlock key={block.id} block={block}>
+          {block.children.map((child) => (
+            <BlockRenderer key={child.id} block={child} />
+          ))}
+        </DivisionBlock>
+      );
     default:
       return null;
   }
