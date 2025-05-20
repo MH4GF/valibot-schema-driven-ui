@@ -17,6 +17,7 @@ import { BlockForm } from "./_components/BlockForm";
 import { BlockRenderer } from "./_components/BlockRenderer";
 import { BoxSelect, Eye, Image, Plus, Type } from "lucide-react";
 import Link from "next/link";
+import ChatPopup from "./_components/ChatPopup";
 
 type BlockTreeItem = Block & { children?: BlockTreeItem[] };
 
@@ -43,6 +44,7 @@ export default function Editor({
     () => buildHierarchy(Object.values(page.blocks)),
     [page.blocks]
   );
+  console.log({ page });
 
   useEffect(() => {
     window.history.replaceState({}, "", `?data=${queryData}`);
@@ -175,6 +177,7 @@ export default function Editor({
           )}
         </aside>
       </div>
+      <ChatPopup setPage={setPage} />
     </div>
   );
 }

@@ -51,7 +51,6 @@ export const blockSchema = union([buttonBlockSchema, paragraphBlockSchema, image
 
 // ページレイアウトのスキーマ
 export const pageSchema = object({
-  name: string(),
   blocks: record(string(), blockSchema), // IDによる全ブロックのマップ
 });
 
@@ -84,8 +83,8 @@ const newImage = (id: string, parentId?: string): Image => ({
   id,
   parentId,
   type: 'image',
-  src: 'https://via.placeholder.com/150',
-  alt: '',
+  src: 'https://avatars.githubusercontent.com/u/31152321?v=4',
+  alt: 'GitHub Avatar',
   styles: {},
 })
 
