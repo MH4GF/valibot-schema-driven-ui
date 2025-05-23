@@ -50,7 +50,7 @@ export default function ChatPopup({ setPage }: ChatPopupProps) {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className={`fixed bottom-4 right-4 z-50 ${!isOpen ? "pointer-events-none" : ""}`}>
       {/* Chat popup */}
       <div
         className={`bg-white rounded-lg shadow-2xl w-80 sm:w-96 transition-all duration-300 transform ${
@@ -128,7 +128,7 @@ export default function ChatPopup({ setPage }: ChatPopupProps) {
         onClick={toggleChat}
         className={`rounded-full h-14 w-14 shadow-2xl bg-gray-700 text-white flex items-center justify-center ${
           isOpen ? "hidden" : "flex"
-        } absolute bottom-0 right-0`}
+        } absolute bottom-0 right-0 pointer-events-auto`}
       >
         <MessageCircle className="h-6 w-6" />
       </button>
