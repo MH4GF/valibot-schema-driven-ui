@@ -84,12 +84,12 @@ export default function ChatPopup({ setPage }: ChatPopupProps) {
         >
           {!object ? (
             <div className="text-center text-gray-500 py-6">
-              <p>ページ生成アシスタントへようこそ！</p>
-              <p>どのようなページを生成しますか？</p>
+              <p>Welcome to the Page Generation Assistant!</p>
+              <p>What kind of page would you like to generate?</p>
             </div>
           ) : (
             <div className="bg-gray-100 text-gray-800 p-3 rounded-lg">
-              <h3 className="font-medium mb-2">生成されたページ</h3>
+              <h3 className="font-medium mb-2">Generated Page</h3>
               <pre className="text-xs overflow-x-auto">
                 {JSON.stringify(object, null, 2)}
               </pre>
@@ -97,7 +97,7 @@ export default function ChatPopup({ setPage }: ChatPopupProps) {
           )}
           {error && (
             <div className="bg-red-100 text-red-800 p-3 rounded-lg mt-2">
-              <p className="font-medium">エラーが発生しました</p>
+              <p className="font-medium">An error occurred</p>
               <p className="text-sm">{error.message}</p>
             </div>
           )}
@@ -109,7 +109,7 @@ export default function ChatPopup({ setPage }: ChatPopupProps) {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="ページの内容を教えてください..."
+            placeholder="Please describe the page content..."
             className="flex-1 border text-gray-900 rounded-md px-3 py-2 focus:outline-none focus:ring-2"
             disabled={isLoading}
           />
