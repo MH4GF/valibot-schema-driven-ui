@@ -110,7 +110,7 @@ export default function ChatPopup({ setPage }: ChatPopupProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="ページの内容を教えてください..."
-            className="flex-1 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:bg-gray-600"
+            className="flex-1 border text-gray-900 rounded-md px-3 py-2 focus:outline-none focus:ring-2"
             disabled={isLoading}
           />
           <button
