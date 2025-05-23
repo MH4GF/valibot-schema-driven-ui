@@ -1,13 +1,13 @@
-import { openai } from "@ai-sdk/openai"
-import { streamObject } from "ai"
-import { pageSchema } from "../../schema"
-import { valibotSchema } from "@ai-sdk/valibot"
+import { openai } from "@ai-sdk/openai";
+import { streamObject } from "ai";
+import { pageSchema } from "../../schema";
+import { valibotSchema } from "@ai-sdk/valibot";
 
-export const runtime = "edge"
-export const maxDuration = 30
+export const runtime = "edge";
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { prompt } = await req.json()
+  const { prompt } = await req.json();
 
   const result = streamObject({
     model: openai("gpt-4o"),
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
         "img001": {
           "id": "img001",
           "type": "image",
-          "src": "https://avatars.githubusercontent.com/u/31152321?v=4",
+          "src": "https://no-code-ui-builder.vercel.app/tskaigi-logo.svg",
           "alt": "Profile Photo",
           "parentId": "leftCol",
           "styles": { }
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
     - button: id, type='button', text, styles, optional parentId and onClick
     - paragraph: id, type='paragraph', text, styles, optional parentId
     - image: id, type='image', src, styles, optional alt and parentId
-      NOTE: Since this is a demo, ALWAYS use "https://avatars.githubusercontent.com/u/31152321?v=4" as the src for all images
+      NOTE: Since this is a demo, ALWAYS use "https://no-code-ui-builder.vercel.app/tskaigi-logo.svg" as the src for all images
     - division: id, type='division', styles, optional parentId
 
     Styling Guidelines for Attractive Grid-Based Layouts:
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
     CRITICAL: Never return an empty or minimal page. ALWAYS include at least 4-6 blocks with varied types (buttons, paragraphs, images, divisions). If the user's request is vague, be creative and generate a comprehensive, visually appealing layout anyway.
     `,
     prompt,
-  })
+  });
 
-  return result.toTextStreamResponse()
+  return result.toTextStreamResponse();
 }

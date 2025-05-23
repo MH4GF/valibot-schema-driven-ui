@@ -83,8 +83,8 @@ const newImage = (id: string, parentId?: string): Image => ({
   id,
   parentId,
   type: 'image',
-  src: 'https://avatars.githubusercontent.com/u/31152321?v=4',
-  alt: 'GitHub Avatar',
+  src: 'https://no-code-ui-builder.vercel.app/tskaigi-logo.svg',
+  alt: 'tskaigi logo',
   styles: {},
 })
 
