@@ -47,7 +47,7 @@ export default function Editor({
   console.log({ page });
 
   useEffect(() => {
-    window.history.replaceState({}, "", `?data=${queryData}`);
+    window.history.pushState({}, "", `?data=${queryData}`);
   }, [queryData]);
 
   const addBlock = (type: BlockType, parentId?: string) => {
@@ -127,7 +127,7 @@ export default function Editor({
           Preview
         </Link>
       </header>
-      <div className="grid grid-cols-[1fr,4fr,1fr] overflow-hidden">
+      <div className="grid grid-cols-[1fr,3fr,1fr] overflow-hidden">
         <aside className="border-r border-gray-700 p-4 overflow-y-auto">
           <nav>
             <h2 className="text-lg font-semibold mb-2">Add Blocks</h2>
